@@ -1,0 +1,44 @@
+cabal-version:   3.0
+name:            visight
+version:         0.1.0.0
+license:         BSD-3-Clause
+license-file:    LICENSE
+author:          calfariae
+maintainer:      calfariae+github@gmail.com
+build-type:      Simple
+extra-doc-files: CHANGELOG.md
+
+common shared-properties
+    default-language: Haskell2010
+    ghc-options:      -Wall -Wcompat -O2
+    build-depends:    
+        base ^>=4.18.3.0,
+        aeson >= 2.2.3 && < 2.3,
+        text >= 2.0.2 && < 2.1,
+        vector >= 0.13.2 && < 0.14,
+        time >= 1.12.2 && < 1.13,
+        dotenv >= 0.12.0 && < 0.13,
+        hasql >= 1.9.3 && < 1.10,
+        profunctors >= 5.6.3 && < 5.7,
+        http-types >= 0.12.4 && < 0.13,
+        hasql-th >= 0.4.0 && < 0.5,
+        scotty >= 0.22 && < 0.23,
+        tuple >= 0.3.0 && < 0.4,
+        wai-cors >= 0.2.7 && < 0.3,
+
+library
+    import:           shared-properties
+    hs-source-dirs:   src
+    exposed-modules:  
+        Database.Connection,
+        Database.Statements,
+        Models.User,
+        Models.Image,
+        Handlers.Users,
+        Handlers.Images
+
+executable visight
+    import:           shared-properties
+    main-is:          Main.hs
+    hs-source-dirs:   app
+    build-depends:    visight

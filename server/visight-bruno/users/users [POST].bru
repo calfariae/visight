@@ -1,0 +1,19 @@
+meta {
+  name: users [POST]
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}users
+  body: json
+  auth: none
+}
+
+body:json {
+  { 
+    "cuUsername": "example",
+    "cuEmail": "example@gmail.com",
+    "cuPassword": "example"
+  }
+}
