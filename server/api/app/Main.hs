@@ -14,7 +14,7 @@ import Handlers.Images
 main :: IO ()
 main = do
   -- Acquire database connection
-  connResult <- acquireConnectionWithEnvFrom "../.env.example"
+  connResult <- acquireConnectionWithEnvFrom "../.env"
   conn <- case connResult of
     Left err -> do
       putStrLn $ "Failed to connect to database: " ++ show err

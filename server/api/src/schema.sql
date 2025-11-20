@@ -18,7 +18,3 @@ CREATE TABLE images (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-INSERT INTO users (username, email, password_hash) VALUES 
-    ('alice', 'alice@example.com', '12345678'),
-    ('bobo', 'bob@example.com', '12345678');
