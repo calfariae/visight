@@ -5,6 +5,7 @@ module Models.Image where
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Int (Int64)
+import Data.Text (Text)
 import Data.Time (UTCTime)
 import GHC.Generics (Generic)
 
@@ -12,6 +13,7 @@ import GHC.Generics (Generic)
 data Image = Image
   { imageId :: Int64
   , imageUserId :: Int64
+  , imagePath :: Text
   , imageCreatedAt :: UTCTime
   , imageUpdatedAt :: UTCTime
   } deriving (Show, Generic)

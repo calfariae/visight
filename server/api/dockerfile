@@ -1,0 +1,54 @@
+# Build stage
+FROM haskell:9.6.7 AS builder
+WORKDIR /api
+
+# Add PostgreSQL official repository (official method)
+RUN apt-get update && \
+    apt-get install -y curl ca-certificates && \
+    install -d /usr/share/postgresql-common/pgdg && \
+    curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc && \
+    sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+# Install PostgreSQL dev libraries
+RUN apt-get update && \
+    apt-get install -y \
+    libpq-dev \
+    pkg-config \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build dependencies first (better caching)
+RUN cabal update
+COPY ./visight.cabal /api/visight.cabal
+RUN cabal build --only-dependencies
+
+# Build application
+COPY . /api
+RUN cabal install && \
+    cabal install --install-method=copy --installdir=/api/bin
+
+# Runtime stage
+FROM debian:bullseye-slim
+WORKDIR /api
+
+# Add PostgreSQL repository in runtime stage too
+RUN apt-get update && \
+    apt-get install -y curl ca-certificates && \
+    install -d /usr/share/postgresql-common/pgdg && \
+    curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc && \
+    sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+# Install only runtime dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    libpq5 \
+    libgmp10 \
+    libnuma1 \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only the compiled binary
+COPY --from=builder /api/bin/visight /usr/local/bin/visight
+COPY .env /api/.env
+
+CMD ["visight"]

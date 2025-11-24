@@ -1,11 +1,11 @@
 meta {
-  name: users/:id [GET]
+  name: imagesByUser [GET]
   type: http
   seq: 1
 }
 
 get {
-  url: {{host}}users/1
+  url: {{host}}users/1/images
   body: none
   auth: none
 }

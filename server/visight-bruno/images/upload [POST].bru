@@ -1,0 +1,16 @@
+meta {
+  name: upload [POST]
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}images/1/upload
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  : @file(/home/carl/Pictures/Screenshots/Screenshot From 2025-07-24 11-19-41.png)
+  userId: 1
+}

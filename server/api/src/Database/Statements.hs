@@ -74,8 +74,18 @@ getAllImagesStatement =
   rmap
     (V.toList . fmap (uncurryN Image))
     [TH.vectorStatement|
-      SELECT id :: int8, user_id :: int8, created_at :: timestamptz, updated_at :: timestamptz
+      SELECT id :: int8, user_id :: int8, file_path :: text, created_at :: timestamptz, updated_at :: timestamptz
       FROM images ORDER BY id
+    |]
+
+-- | Get image by ID
+getImageByIdStatement :: Statement Int64 (Maybe Image)
+getImageByIdStatement = 
+  rmap
+    (fmap (uncurryN Image))
+    [TH.maybeStatement|
+      SELECT id :: int8, user_id :: int8, file_path :: text, created_at :: timestamptz, updated_at :: timestamptz
+      FROM images WHERE id = $1 :: int8
     |]
 
 -- | Get images by user ID
@@ -84,7 +94,7 @@ getImagesByUserIdStatement =
   rmap
     (V.toList . fmap (uncurryN Image))
     [TH.vectorStatement|
-      SELECT id :: int8, user_id :: int8, created_at :: timestamptz, updated_at :: timestamptz
+      SELECT id :: int8, user_id :: int8, file_path :: text, created_at :: timestamptz, updated_at :: timestamptz
       FROM images WHERE user_id = $1 :: int8
     |]
 
@@ -95,7 +105,7 @@ createImageStatement =
     (uncurryN Image)
     [TH.singletonStatement|
       INSERT INTO images (user_id) VALUES ($1 :: int8)
-      RETURNING id :: int8, user_id :: int8, created_at :: timestamptz, updated_at :: timestamptz
+      RETURNING id :: int8, user_id :: int8, file_path :: text, created_at :: timestamptz, updated_at :: timestamptz
     |]
 
 -- | Delete image - returns number of rows affected

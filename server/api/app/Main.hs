@@ -14,7 +14,7 @@ import Handlers.Images
 main :: IO ()
 main = do
   -- Acquire database connection
-  connResult <- acquireConnectionWithEnvFrom "../.env"
+  connResult <- acquireConnectionWithEnvFrom ".env"
   conn <- case connResult of
     Left err -> do
       putStrLn $ "Failed to connect to database: " ++ show err
@@ -45,6 +45,9 @@ main = do
 
     -- Image routes
     get "/images" $ getAllImagesHandler conn
-    get "/users/:userId/images" $ getImagesByUserIdHandler conn
+    get "/images/:id" $ getImageByIdHandler conn
+    get "/images/:id/file" $ serveImageHandler conn
     post "/images" $ createImageHandler conn
+    get "/users/:userId/images" $ getImagesByUserIdHandler conn
+    post "/images/:id/upload" $ uploadImageHandler conn
     delete "/images/:id" $ deleteImageHandler conn

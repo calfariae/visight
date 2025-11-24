@@ -1,14 +1,6 @@
 # Visight
 
-## Running the Container
+## Running the Project
 ```bash
 docker compose up -d
-```
-*The `-d` flag runs it in the background*
-
-## Running the Endpoint
-```bash
-cd api
-cabal build
-cabal run
 ```

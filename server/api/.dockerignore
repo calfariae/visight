@@ -1,0 +1,48 @@
+# Cabal build artifacts
+dist/
+dist-newstyle/
+dist-*
+cabal-dev
+.cabal-sandbox/
+cabal.sandbox.config
+cabal.project.local
+cabal.project.local~
+.ghc.environment.*
+
+# Haskell compiled files
+*.o
+*.hi
+*.hie
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+*.prof
+*.aux
+*.hp
+*.eventlog
+.HTF/
+
+# Stack
+.stack-work/
+
+# Environment and uploads
+uploads/
+
+# Git (also good to exclude)
+.git/
+.gitignore
+
+# Docker files (don't need these in the build context)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
