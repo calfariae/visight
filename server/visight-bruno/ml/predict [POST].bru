@@ -1,0 +1,18 @@
+meta {
+  name: predict [POST]
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{ml}}predict
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+   "url": "http://localhost:8080/images/2/file",
+   "imageId": 2
+  }
+}

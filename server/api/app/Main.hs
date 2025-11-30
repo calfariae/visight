@@ -46,8 +46,10 @@ main = do
     -- Image routes
     get "/images" $ getAllImagesHandler conn
     get "/images/:id" $ getImageByIdHandler conn
-    get "/images/:id/file" $ serveImageHandler conn
-    post "/images" $ createImageHandler conn
     get "/users/:userId/images" $ getImagesByUserIdHandler conn
-    post "/images/:id/upload" $ uploadImageHandler conn
+    post "/images" $ createImageHandler conn
+    put "/images/:id" $ updateImageHandler conn
     delete "/images/:id" $ deleteImageHandler conn
+    
+    post "/images/:id/upload" $ uploadImageHandler conn
+    get "/images/:id/file" $ serveImageHandler conn

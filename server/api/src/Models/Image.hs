@@ -14,6 +14,7 @@ data Image = Image
   { imageId :: Int64
   , imageUserId :: Int64
   , imagePath :: Text
+  , imageWeight :: Int64
   , imageCreatedAt :: UTCTime
   , imageUpdatedAt :: UTCTime
   } deriving (Show, Generic)
@@ -27,3 +28,10 @@ data CreateImage = CreateImage
   } deriving (Show, Generic)
 
 instance FromJSON CreateImage
+
+-- | DTO for updating an image
+data UpdateImage = UpdateImage
+  { uiImageWeight :: Maybe Int64
+  } deriving (Show, Generic)
+
+instance FromJSON UpdateImage

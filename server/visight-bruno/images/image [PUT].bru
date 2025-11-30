@@ -1,0 +1,17 @@
+meta {
+  name: image [PUT]
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{host}}/images/2
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "uiImageWeight": 118
+  }
+}

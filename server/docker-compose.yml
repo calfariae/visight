@@ -40,12 +40,30 @@ services:
       - .env
     depends_on:
       - pgdatabase
+    volumes:
+      - api_data:/uploads
+    networks:
+      - visight-network
+
+  ml:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    container_name: visight-ml
+    restart: always
+    ports:
+      - 5000:5000
+    # env_file:
+    #   - .env
+    depends_on:
+      - api
     networks:
       - visight-network
 
 volumes:
   pgdatabase_data:
   pgadmin_data:
+  api_data:
 
 networks:
   visight-network:

@@ -74,7 +74,7 @@ getAllImagesStatement =
   rmap
     (V.toList . fmap (uncurryN Image))
     [TH.vectorStatement|
-      SELECT id :: int8, user_id :: int8, file_path :: text, created_at :: timestamptz, updated_at :: timestamptz
+      SELECT id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
       FROM images ORDER BY id
     |]
 
@@ -84,7 +84,7 @@ getImageByIdStatement =
   rmap
     (fmap (uncurryN Image))
     [TH.maybeStatement|
-      SELECT id :: int8, user_id :: int8, file_path :: text, created_at :: timestamptz, updated_at :: timestamptz
+      SELECT id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
       FROM images WHERE id = $1 :: int8
     |]
 
@@ -94,7 +94,7 @@ getImagesByUserIdStatement =
   rmap
     (V.toList . fmap (uncurryN Image))
     [TH.vectorStatement|
-      SELECT id :: int8, user_id :: int8, file_path :: text, created_at :: timestamptz, updated_at :: timestamptz
+      SELECT id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
       FROM images WHERE user_id = $1 :: int8
     |]
 
@@ -105,7 +105,20 @@ createImageStatement =
     (uncurryN Image)
     [TH.singletonStatement|
       INSERT INTO images (user_id) VALUES ($1 :: int8)
-      RETURNING id :: int8, user_id :: int8, file_path :: text, created_at :: timestamptz, updated_at :: timestamptz
+      RETURNING id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
+    |]
+
+-- | Update image
+updateImageStatement :: Statement (Int64, Maybe Int64) (Maybe Image)
+updateImageStatement = 
+  rmap
+    (fmap (uncurryN Image))
+    [TH.maybeStatement|
+      UPDATE images SET 
+        weight = $2 :: int8?,
+        updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $1 :: int8
+      RETURNING id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
     |]
 
 -- | Delete image - returns number of rows affected

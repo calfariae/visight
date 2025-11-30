@@ -1,0 +1,21 @@
+FROM python:3.13.9
+
+WORKDIR /app
+
+# Copy requirements first
+COPY requirements.txt .
+
+# Install PyTorch CPU and other dependencies in one layer
+RUN pip3 install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Source - https://stackoverflow.com/a
+# Posted by Tushar Kolhe, modified by community. See post 'Timeline' for change history
+# Retrieved 2025-11-27, License - CC BY-SA 4.0
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 -y
+
+# Copy application code
+COPY . /app
+
+EXPOSE 5000
+CMD ["python", "app.py"]

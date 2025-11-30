@@ -16,6 +16,7 @@ CREATE TABLE images (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   file_path VARCHAR(255) GENERATED ALWAYS AS 
     ('../uploads/' || user_id || '/' || id || '.' || 'jpg') STORED,
+  weight INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

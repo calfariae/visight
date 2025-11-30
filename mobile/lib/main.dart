@@ -1,6 +1,10 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:visight/routing/router.dart';
 
-void main() {
+Future <void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final cameras = await availableCameras();
   runApp(const MainApp());
 }
 
@@ -9,12 +13,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return MaterialApp.router(
+      routerConfig: router()
     );
   }
 }
