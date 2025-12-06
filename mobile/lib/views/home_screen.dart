@@ -13,8 +13,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
   List<Map<String, dynamic>> _savedImages = [];
   List<Map<String, dynamic>> _recipes = [];
   bool _isLoading = true;
@@ -22,25 +22,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      setState(() {}); // Rebuild when tab changes
-    });
     _loadData();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    await Future.wait([
-      _loadSavedImages(),
-      _loadRecipes(),
-    ]);
+    await Future.wait([_loadSavedImages(), _loadRecipes()]);
     setState(() => _isLoading = false);
   }
 
@@ -74,30 +61,34 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Visight'),
+        title: Text('Visight'),
         centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Images', icon: Icon(Icons.image)),
-            Tab(text: 'Recipes', icon: Icon(Icons.restaurant_menu)),
-          ],
-        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildImagesTab(),
-                _buildRecipesTab(),
-              ],
-            ),
+          : _currentIndex == 0
+          ? _buildImagesTab()
+          : _buildRecipesTab(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.image), label: 'Images'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.restaurant_menu),
+            label: 'Recipes',
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _tabController.index == 0
+        onPressed: _currentIndex == 0
             ? () => context.go(Routes.camera)
             : _navigateToCreateRecipe,
-        child: Icon(_tabController.index == 0 ? Icons.camera_alt : Icons.add),
+        child: Icon(_currentIndex == 0 ? Icons.camera_alt : Icons.add),
       ),
     );
   }
@@ -110,9 +101,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           children: [
             Icon(Icons.image_not_supported, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text('No saved images yet', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+            Text(
+              'No saved images yet',
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            ),
             const SizedBox(height: 8),
-            Text('Tap the camera button to get started', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
+            Text(
+              'Tap the camera button to get started',
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            ),
           ],
         ),
       );
@@ -152,9 +149,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           children: [
             Icon(Icons.restaurant_menu, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            Text('No recipes yet', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+            Text(
+              'No recipes yet',
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            ),
             const SizedBox(height: 8),
-            Text('Tap the + button to create a recipe', style: TextStyle(fontSize: 14, color: Colors.grey[500])),
+            Text(
+              'Tap the + button to create a recipe',
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            ),
           ],
         ),
       );
@@ -176,11 +179,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
             child: ListTile(
-              leading: const CircleAvatar(
-                child: Icon(Icons.restaurant),
-              ),
+              leading: const CircleAvatar(child: Icon(Icons.restaurant)),
               title: Text(recipe['name'] ?? 'Untitled Recipe'),
-              subtitle: Text('$imageCount ingredient${imageCount != 1 ? 's' : ''} • ${totalWeight.toStringAsFixed(2)} kg total'),
+              subtitle: Text(
+                '$imageCount ingredient${imageCount != 1 ? 's' : ''} • ${totalWeight.toStringAsFixed(2)} kg total',
+              ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 // TODO: Navigate to recipe details
