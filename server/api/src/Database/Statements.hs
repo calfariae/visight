@@ -35,6 +35,16 @@ getUserByIdStatement =
       FROM users WHERE id = $1 :: uuid
     |]
 
+-- | Get user by email
+getUserByEmailStatement :: Statement Text (Maybe User)
+getUserByEmailStatement = 
+  rmap
+    (fmap (uncurryN User))
+    [TH.maybeStatement|
+      SELECT id :: uuid, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
+      FROM users WHERE email = $1 :: text
+    |]
+
 -- | Create a new user
 createUserStatement :: Statement (Text, Text, Text) User
 createUserStatement = 
@@ -98,6 +108,7 @@ getImagesByUserIdStatement =
       SELECT id :: uuid, user_id :: uuid, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
       FROM images WHERE user_id = $1 :: uuid
     |]
+
 
 -- | Create a new image
 createImageStatement :: Statement UUID Image

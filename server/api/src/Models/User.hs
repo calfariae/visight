@@ -39,6 +39,14 @@ data UpdateUser = UpdateUser
 
 instance FromJSON UpdateUser
 
+-- | DTO for user login
+data LoginUser = LoginUser
+  { luEmail :: Text
+  , luPassword :: Text
+  } deriving (Show, Generic)
+
+instance FromJSON LoginUser
+
 -- | Public user representation (without password hash)
 data PublicUser = PublicUser
   { puId :: UUID

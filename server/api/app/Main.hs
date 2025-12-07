@@ -39,6 +39,7 @@ main = do
     -- User routes
     get "/users" $ getAllUsersHandler conn
     get "/users/:id" $ getUserByIdHandler conn
+    post "/login" $ loginHandler conn
     post "/users" $ createUserHandler conn
     put "/users/:id" $ updateUserHandler conn
     delete "/users/:id" $ deleteUserHandler conn

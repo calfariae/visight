@@ -43,6 +43,39 @@ getUserByIdHandler conn = do
       json $ object ["error" .= ("User not found" :: String)]
     Right (Just user) -> json $ toPublicUser user
 
+-- | POST /login - Authenticate user
+loginHandler :: Connection.Connection -> ActionM ()
+loginHandler conn = do
+  loginUser <- jsonData :: ActionM LoginUser
+  
+  -- Fetch user by email
+  result <- liftIO $ Session.run 
+    (Session.statement (luEmail loginUser) getUserByEmailStatement) conn
+  
+  case result of
+    Left err -> do
+      status status500
+      json $ object ["error" .= ("Database error" :: String)]
+    
+    Right Nothing -> do
+      status status401
+      json $ object ["error" .= ("Invalid credentials" :: String)]
+    
+    Right (Just user) -> do
+      -- Verify password
+      let isValid = validatePassword 
+            (encodeUtf8 $ passwordHash user)
+            (encodeUtf8 $ luPassword loginUser)
+      
+      if isValid
+        then json $ object 
+          [ "success" .= True
+          , "user" .= toPublicUser user
+          ]
+        else do
+          status status401
+          json $ object ["error" .= ("Invalid credentials" :: String)]
+
 -- | POST /users - Create a new user
 createUserHandler :: Connection.Connection -> ActionM ()
 createUserHandler conn = do
