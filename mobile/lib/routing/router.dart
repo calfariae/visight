@@ -4,9 +4,11 @@ import 'package:visight/views/camera_screen.dart';
 import 'package:visight/views/details_screen.dart';
 import 'package:visight/views/home_screen.dart';
 import 'package:visight/views/recipe_creation_screen.dart';
+import 'package:visight/views/signin_screen.dart';
+import 'package:visight/views/signup_screen.dart';
 
 GoRouter router() => GoRouter(
-  initialLocation: Routes.home,
+  initialLocation: Routes.signUp,
   debugLogDiagnostics: true,
   routes: [
     GoRoute(
@@ -31,6 +33,14 @@ GoRouter router() => GoRouter(
     GoRoute(
       path: Routes.recipe,
       builder: (context, state) => const RecipeCreationScreen(),
+    ),
+    GoRoute(
+      path: Routes.signUp,
+      builder: (context, state) => const SignUpScreen(),
+    ),
+    GoRoute(
+      path: Routes.signIn,
+      builder: (context, state) => const SignInScreen(),
     ),
   ],
 );

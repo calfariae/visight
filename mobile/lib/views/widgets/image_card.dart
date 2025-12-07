@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ImageCard extends StatelessWidget {
   final String name;
-  final int imageId;
+  final String imageId;
   final double totalWeight;
   final int detectionsCount;
   final String timestamp;
@@ -99,7 +99,7 @@ class ImageCard extends StatelessWidget {
                       const Icon(Icons.scale, size: 16, color: Colors.grey),
                       const SizedBox(width: 4),
                       Text(
-                        '${totalWeight.toStringAsFixed(2)} kg',
+                        '${totalWeight.toStringAsFixed(2)} g',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[700],

@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:visight/config/config.dart';
 import 'dart:convert';
 
@@ -67,11 +68,14 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Future<Map<String, dynamic>?> _createImageDatabase() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('user_id');
+
       final response = await http.post(
         Uri.parse('${Config.baseUrl}/images'), // Adjust your base URL
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'ciUserId': 1,
+          'ciUserId': userId,
           // Add any other initial metadata needed
         }),
       );
@@ -88,13 +92,16 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Future<Map<String, dynamic>?> _uploadImage(String imageId, String imagePath) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('user_id');
+
       final request = http.MultipartRequest(
         'POST',
         Uri.parse('${Config.baseUrl}/images/$imageId/upload'),
       );
 
       // Add userId field
-      request.fields['userId'] = '1'; // Replace with actual userId
+      request.fields['userId'] = userId!; // Replace with actual userId
       
       // Add image file
       request.files.add(await http.MultipartFile.fromPath('image', imagePath));
