@@ -2,6 +2,7 @@
 
 module Handlers.Images where
 
+import Control.Monad (when)
 import Data.Aeson (object, (.=))
 import Network.HTTP.Types.Status
 import Web.Scotty
@@ -10,6 +11,7 @@ import Database.Statements
 import System.Directory (createDirectoryIfMissing)
 import Network.Wai.Parse (fileContent)
 import System.FilePath ((</>))
+import System.Directory (doesFileExist, removeFile)
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import qualified Hasql.Connection as Connection
@@ -87,18 +89,34 @@ updateImageHandler conn = do
 deleteImageHandler :: Connection.Connection -> ActionM ()
 deleteImageHandler conn = do
   iid <- pathParam "id"
-  result <- liftIO $ Session.run (Session.statement iid deleteImageStatement) conn
+  
+  -- First, get the image to retrieve file path
+  result <- liftIO $ Session.run (Session.statement iid getImageByIdStatement) conn
+  
   case result of
     Left err -> do
       status status500
       json $ object ["error" .= ("Database error" :: String), "details" .= show err]
-    Right rowsAffected ->
-      if rowsAffected > 0
-        then do
-          status status204
-          json $ object ["message" .= ("Image deleted" :: String)]
-        else do
+    Right image -> do
+      case image of
+        Nothing -> do
           status status404
+          json $ object ["error" .= ("Image not found" :: String)]
+        Just image -> do
+          -- Delete the physical file
+          let filePath = T.unpack $ imagePath image  -- Add T.unpack here
+          fileExists <- liftIO $ doesFileExist filePath
+          when fileExists $ liftIO $ removeFile filePath
+          
+          -- Delete from database
+          result <- liftIO $ Session.run (Session.statement iid deleteImageStatement) conn
+          case result of
+            Left err -> do
+              status status500
+              json $ object ["error" .= ("Database error" :: String), "details" .= show err]
+            Right _ -> do
+              status status204
+              json $ object ["message" .= ("Image deleted" :: String)]
 
   -- as it stands right now, anyone can just request to the url
   -- given a uid that doesn't exist, it'll still create a directory for the nonexistant user

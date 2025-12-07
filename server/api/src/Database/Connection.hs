@@ -1,14 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Database.Connection where
 
-import qualified Hasql.Connection as Connection
-import qualified Hasql.Connection.Setting as ConnectionSetting
-import qualified Hasql.Connection.Setting.Connection as ConnectionSettingConnection
 import System.Environment (lookupEnv)
 import Configuration.Dotenv (loadFile, defaultConfig, Config(..))
 import Data.Maybe (fromMaybe)
-import qualified Data.Text as T
 import Data.Text (Text)
+import qualified Data.Text as T
+import qualified Hasql.Connection as Connection
+import qualified Hasql.Connection.Setting as ConnectionSetting
+import qualified Hasql.Connection.Setting.Connection as ConnectionSettingConnection
 
 -- | Load environment variables from .env file at default location
 loadEnv :: IO ()
