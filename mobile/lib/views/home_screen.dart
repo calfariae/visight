@@ -57,18 +57,45 @@ class _HomeScreenState extends State<HomeScreen> {
     context.go(Routes.recipe);
   }
 
+  Future<void> _signOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_id');
+      if (mounted) {
+        context.go(Routes.signIn);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Visight'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Visight'), centerTitle: true),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _currentIndex == 0
           ? _buildImagesTab()
-          : _buildRecipesTab(),
+          : _currentIndex == 1
+          ? _buildRecipesTab()
+          : _buildProfileTab(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -82,14 +109,17 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.restaurant_menu),
             label: 'Recipes',
           ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _currentIndex == 0
-            ? () => context.go(Routes.camera)
-            : _navigateToCreateRecipe,
-        child: Icon(_currentIndex == 0 ? Icons.camera_alt : Icons.add),
-      ),
+      floatingActionButton: _currentIndex == 2
+          ? null
+          : FloatingActionButton(
+              onPressed: _currentIndex == 0
+                  ? () => context.go(Routes.camera)
+                  : _navigateToCreateRecipe,
+              child: Icon(_currentIndex == 0 ? Icons.camera_alt : Icons.add),
+            ),
     );
   }
 
@@ -191,6 +221,32 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildProfileTab() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50)),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _signOut,
+              icon: const Icon(Icons.logout),
+              label: const Text('Sign Out'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:visight/routing/routes.dart';
 import 'package:visight/views/camera_screen.dart';
 import 'package:visight/views/details_screen.dart';
@@ -10,6 +12,7 @@ import 'package:visight/views/signup_screen.dart';
 GoRouter router() => GoRouter(
   initialLocation: Routes.signUp,
   debugLogDiagnostics: true,
+  redirect: _redirect,
   routes: [
     GoRoute(
       path: Routes.home,
@@ -45,20 +48,25 @@ GoRouter router() => GoRouter(
   ],
 );
 
-// Future<String?> _redirect(BuildContext context, GoRouterState state) async {
-//   // if the user is not logged in, they need to login
-//   final loggedIn = await context.read<AuthRepository>().isAuthenticated;
-//   final loggingIn = state.matchedLocation == Routes.login;
-//   if (!loggedIn) {
-//     return Routes.login;
-//   }
+Future<String?> _redirect(BuildContext context, GoRouterState state) async {
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getString('user_id');
 
-//   // if the user is logged in but still on the login page, send them to
-//   // the home page
-//   if (loggingIn) {
-//     return Routes.home;
-//   }
+  final loggedIn = userId != null && userId.isNotEmpty;
+  final loggingIn =
+      state.matchedLocation == Routes.signIn ||
+      state.matchedLocation == Routes.signUp;
 
-//   // no need to redirect at all
-//   return null;
-// }
+  // If user is not logged in and not on auth screens, redirect to sign up
+  if (!loggedIn && !loggingIn) {
+    return Routes.signUp;
+  }
+
+  // If user is logged in but on auth screens, redirect to home
+  if (loggedIn && loggingIn) {
+    return Routes.home;
+  }
+
+  // No redirect needed
+  return null;
+}
