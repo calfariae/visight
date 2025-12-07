@@ -3,7 +3,9 @@
 module Handlers.Users where
 
 import Models.User
+import Crypto.BCrypt
 import Database.Statements
+import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.Aeson (object, (.=))
 import Data.UUID (UUID)
 import Network.HTTP.Types.Status
@@ -45,16 +47,28 @@ getUserByIdHandler conn = do
 createUserHandler :: Connection.Connection -> ActionM ()
 createUserHandler conn = do
   createUser <- jsonData :: ActionM CreateUser
-  -- In production, hash the password!
-  let userParams = (cuUsername createUser, cuEmail createUser, cuPassword createUser)
-  result <- liftIO $ Session.run (Session.statement userParams createUserStatement) conn
-  case result of
-    Left err -> do
+  
+  -- Hash the password with bcrypt
+  maybeHash <- liftIO $ hashPasswordUsingPolicy slowerBcryptHashingPolicy 
+                          (encodeUtf8 $ cuPassword createUser)
+  
+  case maybeHash of
+    Nothing -> do
       status status500
-      json $ object ["error" .= ("Database error" :: String), "details" .= show err]
-    Right user -> do
-      status status201
-      json $ toPublicUser user
+      json $ object ["error" .= ("Password hashing failed" :: String)]
+    Just hash -> do
+      let passwordHash = decodeUtf8 hash
+      let userParams = (cuUsername createUser, cuEmail createUser, passwordHash)
+      
+      result <- liftIO $ Session.run (Session.statement userParams createUserStatement) conn
+      
+      case result of
+        Left err -> do
+          status status500
+          json $ object ["error" .= ("Database error" :: String), "details" .= show err]
+        Right user -> do
+          status status201
+          json $ toPublicUser user
 
 -- | PUT /users/:id - Update user
 updateUserHandler :: Connection.Connection -> ActionM ()
