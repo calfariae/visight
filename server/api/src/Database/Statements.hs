@@ -4,6 +4,7 @@ module Database.Statements where
 
 import Data.Int (Int64)
 import Data.Text (Text)
+import Data.UUID (UUID)
 import Data.Tuple.Curry (uncurryN)
 import Data.Profunctor (rmap)
 import Hasql.Statement (Statement(..))
@@ -20,18 +21,18 @@ getAllUsersStatement =
   rmap
     (V.toList . fmap (uncurryN User))
     [TH.vectorStatement|
-      SELECT id :: int8, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
+      SELECT id :: uuid, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
       FROM users ORDER BY id
     |]
 
 -- | Get user by ID
-getUserByIdStatement :: Statement Int64 (Maybe User)
+getUserByIdStatement :: Statement UUID (Maybe User)
 getUserByIdStatement = 
   rmap
     (fmap (uncurryN User))
     [TH.maybeStatement|
-      SELECT id :: int8, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
-      FROM users WHERE id = $1 :: int8
+      SELECT id :: uuid, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
+      FROM users WHERE id = $1 :: uuid
     |]
 
 -- | Create a new user
@@ -42,11 +43,11 @@ createUserStatement =
     [TH.singletonStatement|
       INSERT INTO users (username, email, password_hash) 
       VALUES ($1 :: text, $2 :: text, $3 :: text)
-      RETURNING id :: int8, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
+      RETURNING id :: uuid, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
     |]
 
 -- | Update user
-updateUserStatement :: Statement (Int64, Maybe Text, Maybe Text) (Maybe User)
+updateUserStatement :: Statement (UUID, Maybe Text, Maybe Text) (Maybe User)
 updateUserStatement = 
   rmap
     (fmap (uncurryN User))
@@ -55,15 +56,15 @@ updateUserStatement =
         username = COALESCE($2 :: text?, username), 
         email = COALESCE($3 :: text?, email), 
         updated_at = CURRENT_TIMESTAMP 
-      WHERE id = $1 :: int8
-      RETURNING id :: int8, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
+      WHERE id = $1 :: uuid
+      RETURNING id :: uuid, username :: text, email :: text, password_hash :: text, created_at :: timestamptz, updated_at :: timestamptz
     |]
 
 -- | Delete user - returns number of rows affected
-deleteUserStatement :: Statement Int64 Int64
+deleteUserStatement :: Statement UUID Int64
 deleteUserStatement = 
   [TH.rowsAffectedStatement|
-    DELETE FROM users WHERE id = $1 :: int8
+    DELETE FROM users WHERE id = $1 :: uuid
   |]
 
 -- ** Image Statements **
@@ -74,42 +75,42 @@ getAllImagesStatement =
   rmap
     (V.toList . fmap (uncurryN Image))
     [TH.vectorStatement|
-      SELECT id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
+      SELECT id :: uuid, user_id :: uuid, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
       FROM images ORDER BY id
     |]
 
 -- | Get image by ID
-getImageByIdStatement :: Statement Int64 (Maybe Image)
+getImageByIdStatement :: Statement UUID (Maybe Image)
 getImageByIdStatement = 
   rmap
     (fmap (uncurryN Image))
     [TH.maybeStatement|
-      SELECT id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
-      FROM images WHERE id = $1 :: int8
+      SELECT id :: uuid, user_id :: uuid, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
+      FROM images WHERE id = $1 :: uuid
     |]
 
 -- | Get images by user ID
-getImagesByUserIdStatement :: Statement Int64 [Image]
+getImagesByUserIdStatement :: Statement UUID [Image]
 getImagesByUserIdStatement = 
   rmap
     (V.toList . fmap (uncurryN Image))
     [TH.vectorStatement|
-      SELECT id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
-      FROM images WHERE user_id = $1 :: int8
+      SELECT id :: uuid, user_id :: uuid, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
+      FROM images WHERE user_id = $1 :: uuid
     |]
 
 -- | Create a new image
-createImageStatement :: Statement Int64 Image
+createImageStatement :: Statement UUID Image
 createImageStatement = 
   rmap
     (uncurryN Image)
     [TH.singletonStatement|
-      INSERT INTO images (user_id) VALUES ($1 :: int8)
-      RETURNING id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
+      INSERT INTO images (user_id) VALUES ($1 :: uuid)
+      RETURNING id :: uuid, user_id :: uuid, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
     |]
 
 -- | Update image
-updateImageStatement :: Statement (Int64, Maybe Int64) (Maybe Image)
+updateImageStatement :: Statement (UUID, Maybe Int64) (Maybe Image)
 updateImageStatement = 
   rmap
     (fmap (uncurryN Image))
@@ -117,13 +118,13 @@ updateImageStatement =
       UPDATE images SET 
         weight = $2 :: int8?,
         updated_at = CURRENT_TIMESTAMP 
-      WHERE id = $1 :: int8
-      RETURNING id :: int8, user_id :: int8, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
+      WHERE id = $1 :: uuid
+      RETURNING id :: uuid, user_id :: uuid, file_path :: text, weight :: int8, created_at :: timestamptz, updated_at :: timestamptz
     |]
 
 -- | Delete image - returns number of rows affected
-deleteImageStatement :: Statement Int64 Int64
+deleteImageStatement :: Statement UUID Int64
 deleteImageStatement = 
   [TH.rowsAffectedStatement|
-    DELETE FROM images WHERE id = $1 :: int8
+    DELETE FROM images WHERE id = $1 :: uuid
   |]

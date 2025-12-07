@@ -2,14 +2,20 @@
 
 module Handlers.Users where
 
+import Models.User
+import Database.Statements
 import Data.Aeson (object, (.=))
+import Data.UUID (UUID)
 import Network.HTTP.Types.Status
 import Web.Scotty
+import Web.Scotty (Parsable(..))
+import qualified Data.UUID as UUID
+import qualified Data.Text.Lazy as TL
 import qualified Hasql.Connection as Connection
 import qualified Hasql.Session as Session
 
-import Models.User
-import Database.Statements
+instance Parsable UUID where
+  parseParam = maybe (Left "Invalid UUID") Right . UUID.fromText . TL.toStrict
 
 -- | GET /users - Get all users
 getAllUsersHandler :: Connection.Connection -> ActionM ()

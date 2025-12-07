@@ -3,9 +3,11 @@
 module Handlers.Images where
 
 import Control.Monad (when)
+import Data.UUID (UUID)
 import Data.Aeson (object, (.=))
 import Network.HTTP.Types.Status
 import Web.Scotty
+import Web.Scotty (Parsable(..))
 import Models.Image
 import Database.Statements
 import System.Directory (createDirectoryIfMissing)
@@ -16,10 +18,15 @@ import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import qualified Hasql.Connection as Connection
 import qualified Hasql.Session as Session
+import qualified Data.UUID as UUID
+import qualified Data.Text.Lazy as TL
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Aeson as A
+
+instance Parsable UUID where
+  parseParam = maybe (Left "Invalid UUID") Right . UUID.fromText . TL.toStrict
 
 -- | GET /images - Get all images
 getAllImagesHandler :: Connection.Connection -> ActionM ()
@@ -125,9 +132,9 @@ deleteImageHandler conn = do
 
 uploadImageHandler :: Connection.Connection -> ActionM ()
 uploadImageHandler conn = do
-  iid <- pathParam "id" :: ActionM Int
+  iid <- pathParam "id" :: ActionM UUID
   uid <- formParam "userId" :: ActionM TL.Text
-  let userId = read (TL.unpack uid) :: Int
+  let userId = read (TL.unpack uid) :: UUID
   fs <- files
   case fs of
     [] -> do

@@ -5,14 +5,15 @@ module Models.Image where
 
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Int (Int64)
+import Data.UUID (UUID)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 import GHC.Generics (Generic)
 
 -- | Image model
 data Image = Image
-  { imageId :: Int64
-  , imageUserId :: Int64
+  { imageId :: UUID
+  , imageUserId :: UUID
   , imagePath :: Text
   , imageWeight :: Int64
   , imageCreatedAt :: UTCTime
@@ -24,7 +25,7 @@ instance FromJSON Image
 
 -- | DTO for creating a new image
 data CreateImage = CreateImage
-  { ciUserId :: Int64
+  { ciUserId :: UUID
   } deriving (Show, Generic)
 
 instance FromJSON CreateImage

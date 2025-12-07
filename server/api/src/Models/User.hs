@@ -4,14 +4,14 @@
 module Models.User where
 
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Int (Int64)
+import Data.UUID (UUID)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 import GHC.Generics (Generic)
 
 -- | User model representing a database user
 data User = User
-  { userId :: Int64
+  { userId :: UUID
   , username :: Text
   , email :: Text
   , passwordHash :: Text
@@ -41,7 +41,7 @@ instance FromJSON UpdateUser
 
 -- | Public user representation (without password hash)
 data PublicUser = PublicUser
-  { puId :: Int64
+  { puId :: UUID
   , puUsername :: Text
   , puEmail :: Text
   , puCreatedAt :: UTCTime
